@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>&lt;no title&gt; &mdash; Opensearch-py-ml 1.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=fc837d61"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Opensearch-py-ml
+          </a>
+              <div class="version">
+                1.1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/index.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/pre_trained_models.html">Pre-trained models</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Opensearch-py-ml</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">&lt;no title&gt;</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/examples/demo_tracing_model_neural_sparse.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">DeprecationWarning</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">FutureWarning</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Unverified HTTPS request&quot;</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;TracerWarning: torch.tensor&quot;</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;using SSL with verify_certs=False is insecure.&quot;</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">opensearch_py_ml</span> <span class="k">as</span> <span class="nn">oml</span>
+<span class="kn">from</span> <span class="nn">opensearchpy</span> <span class="kn">import</span> <span class="n">OpenSearch</span>
+<span class="kn">from</span> <span class="nn">opensearch_py_ml.ml_models</span> <span class="kn">import</span> <span class="n">NeuralSparseV2Model</span>
+<span class="kn">from</span> <span class="nn">opensearch_py_ml.ml_commons</span> <span class="kn">import</span> <span class="n">MLCommonClient</span>
+
+<span class="n">CLUSTER_URL</span> <span class="o">=</span> <span class="s1">&#39;http://localhost:9200&#39;</span>
+
+<span class="k">def</span> <span class="nf">get_os_client</span><span class="p">(</span><span class="n">cluster_url</span> <span class="o">=</span> <span class="n">CLUSTER_URL</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Get OpenSearch client</span>
+<span class="sd">    :param cluster_url: cluster URL like https://ml-te-netwo-1s12ba42br23v-ff1736fa7db98ff2.elb.us-west-2.amazonaws.com:443</span>
+<span class="sd">    :return: OpenSearch client</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">OpenSearch</span><span class="p">(</span>
+        <span class="n">hosts</span><span class="o">=</span><span class="p">[</span><span class="n">cluster_url</span><span class="p">],</span>
+        <span class="n">verify_certs</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">client</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">get_os_client</span><span class="p">()</span>
+<span class="n">ml_client</span> <span class="o">=</span> <span class="n">MLCommonClient</span><span class="p">(</span><span class="n">client</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">model_id</span> <span class="o">=</span> <span class="s2">&quot;opensearch-project/opensearch-neural-sparse-encoding-v1&quot;</span>
+<span class="n">folder_path</span> <span class="o">=</span> <span class="s2">&quot;opensearch-project/opensearch-neural-sparse-encoding-v1&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">pre_trained_model</span> <span class="o">=</span> <span class="n">NeuralSparseV2Model</span><span class="p">(</span><span class="n">model_id</span><span class="o">=</span><span class="n">model_id</span><span class="p">,</span> <span class="n">folder_path</span><span class="o">=</span><span class="n">folder_path</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">model_path</span> <span class="o">=</span> <span class="n">pre_trained_model</span><span class="o">.</span><span class="n">save_as_pt</span><span class="p">(</span><span class="n">model_id</span><span class="o">=</span><span class="n">model_id</span><span class="p">,</span> <span class="n">sentences</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;for example providing a small sentence&quot;</span><span class="p">,</span> <span class="s2">&quot;we can add multiple sentences&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+model file is saved to  opensearch-project/opensearch-neural-sparse-encoding-v1/opensearch-neural-sparse-encoding-v1.pt
+zip file is saved to  opensearch-project/opensearch-neural-sparse-encoding-v1/opensearch-neural-sparse-encoding-v1.zip
+
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">bert</span> <span class="o">=</span> <span class="n">pre_trained_model</span><span class="o">.</span><span class="n">get_bert</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">model_config_path_torch</span> <span class="o">=</span> <span class="n">pre_trained_model</span><span class="o">.</span><span class="n">make_model_config_json</span><span class="p">(</span><span class="n">model_format</span><span class="o">=</span><span class="s1">&#39;TORCH_SCRIPT&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">ml_client</span><span class="o">.</span><span class="n">register_model</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">model_config_path_torch</span><span class="p">,</span> <span class="n">isVerbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">persistent_settings</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;persistent&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;plugins&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;ml_commons&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;allow_registering_model_via_local_file&quot;</span><span class="p">:</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;allow_registering_model_via_url&quot;</span><span class="p">:</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;only_run_on_ml_node&quot;</span><span class="p">:</span> <span class="s2">&quot;false&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;model_access_control_enabled&quot;</span><span class="p">:</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;native_memory_threshold&quot;</span><span class="p">:</span> <span class="s2">&quot;99&quot;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">cluster</span><span class="o">.</span><span class="n">put_settings</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="n">persistent_settings</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><br/><span></span><span class="n">client</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">perform_request</span><span class="p">(</span><span class="s2">&quot;POST&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;/_plugins/_ml/_predict/sparse_encoding/psIpSZABNZ2v9RGKA__n&quot;</span><span class="p">,</span><span class="n">body</span><span class="o">=</span><span class="p">{</span>
+  <span class="s2">&quot;text_docs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;China&quot;</span><span class="p">]</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+ERROR! Session/line number was not unique in database. History logging moved to new session 181
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;inference_results&#39;: [{&#39;output&#39;: [{&#39;name&#39;: &#39;output&#39;,
+     &#39;dataAsMap&#39;: {&#39;response&#39;: [{&#39;country&#39;: 0.8113095,
+        &#39;capital&#39;: 0.12128092,
+        &#39;usa&#39;: 0.54763097,
+        &#39;civilization&#39;: 0.08577769,
+        &#39;political&#39;: 0.30930677,
+        &#39;ben&#39;: 0.12933268,
+        &#39;america&#39;: 0.41384023,
+        &#39;chinese&#39;: 2.233966,
+        &#39;bank&#39;: 0.10145193,
+        &#39;province&#39;: 0.11379999,
+        &#39;han&#39;: 0.37640074,
+        &#39;len&#39;: 0.08077875,
+        &#39;geography&#39;: 0.3322514,
+        &#39;jenny&#39;: 0.12028172,
+        &#39;international&#39;: 0.4409741,
+        &#39;image&#39;: 0.16184816,
+        &#39;africa&#39;: 0.09778593,
+        &#39;adam&#39;: 0.015588459,
+        &#39;tao&#39;: 0.043516953,
+        &#39;marshall&#39;: 0.174712,
+        &#39;im&#39;: 0.041784286,
+        &#39;corporation&#39;: 0.12695388,
+        &#39;ai&#39;: 0.047364835,
+        &#39;countries&#39;: 0.07680521,
+        &#39;tiger&#39;: 0.00816874,
+        &#39;andrew&#39;: 0.062028904,
+        &#39;andy&#39;: 0.05723232,
+        &#39;daniel&#39;: 0.098783664,
+        &#39;julian&#39;: 0.23683627,
+        &#39;korea&#39;: 0.082536094,
+        &#39;alex&#39;: 0.12260145,
+        &#39;wang&#39;: 0.59459865,
+        &#39;dom&#39;: 0.055905383,
+        &#39;global&#39;: 0.3028026,
+        &#39;india&#39;: 0.033801712,
+        &#39;turk&#39;: 0.028915996,
+        &#39;foreign&#39;: 0.19232914,
+        &#39;benjamin&#39;: 0.17225233,
+        &#39;world&#39;: 0.4275202,
+        &#39;government&#39;: 0.37130147,
+        &#39;ally&#39;: 0.15135458,
+        &#39;george&#39;: 0.24682885,
+        &#39;steve&#39;: 0.15695705,
+        &#39;currency&#39;: 0.3459631,
+        &#39;europe&#39;: 0.3969318,
+        &#39;asia&#39;: 0.8740502,
+        &#39;asian&#39;: 0.119550645,
+        &#39;marx&#39;: 0.022125658,
+        &#39;union&#39;: 0.3648164,
+        &#39;kingdom&#39;: 0.18269038,
+        &#39;democracy&#39;: 0.3607443,
+        &#39;china&#39;: 2.9596148,
+        &#39;culture&#39;: 0.097371586,
+        &#39;wall&#39;: 0.30692628,
+        &#39;economic&#39;: 0.54884636,
+        &#39;president&#39;: 0.06502338}]}}]}]}
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">client</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">perform_request</span><span class="p">(</span><span class="s2">&quot;POST&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;/_plugins/_ml/models/psIpSZABNZ2v9RGKA__n/_predict&quot;</span><span class="p">,</span><span class="n">body</span><span class="o">=</span><span class="p">{</span>
+  <span class="s2">&quot;text_docs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;China&quot;</span><span class="p">]</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">client</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">perform_request</span><span class="p">(</span><span class="s2">&quot;POST&quot;</span><span class="p">,</span><span class="sa">f</span><span class="s2">&quot;/plugins/ml/predict/sparse_encoding/&quot;</span><span class="p">,</span><span class="n">body</span><span class="o">=</span><span class="p">{</span>
+  <span class="s2">&quot;text_docs&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;hello world&quot;</span><span class="p">,</span> <span class="s2">&quot;second doc&quot;</span><span class="p">]</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">pre_trained_model</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">pre_trained_model</span><span class="o">.</span><span class="n">get_model</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+NeuralSparseModel(
+  (bert): BertForMaskedLM(
+    (bert): BertModel(
+      (embeddings): BertEmbeddings(
+        (word_embeddings): Embedding(30522, 768, padding_idx=0)
+        (position_embeddings): Embedding(512, 768)
+        (token_type_embeddings): Embedding(2, 768)
+        (LayerNorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+        (dropout): Dropout(p=0.1, inplace=False)
+      )
+      (encoder): BertEncoder(
+        (layer): ModuleList(
+          (0-11): 12 x BertLayer(
+            (attention): BertAttention(
+              (self): BertSelfAttention(
+                (query): Linear(in_features=768, out_features=768, bias=True)
+                (key): Linear(in_features=768, out_features=768, bias=True)
+                (value): Linear(in_features=768, out_features=768, bias=True)
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+              (output): BertSelfOutput(
+                (dense): Linear(in_features=768, out_features=768, bias=True)
+                (LayerNorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+                (dropout): Dropout(p=0.1, inplace=False)
+              )
+            )
+            (intermediate): BertIntermediate(
+              (dense): Linear(in_features=768, out_features=3072, bias=True)
+              (intermediate_act_fn): GELUActivation()
+            )
+            (output): BertOutput(
+              (dense): Linear(in_features=3072, out_features=768, bias=True)
+              (LayerNorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+              (dropout): Dropout(p=0.1, inplace=False)
+            )
+          )
+        )
+      )
+    )
+    (cls): BertOnlyMLMHead(
+      (predictions): BertLMPredictionHead(
+        (transform): BertPredictionHeadTransform(
+          (dense): Linear(in_features=768, out_features=768, bias=True)
+          (transform_act_fn): GELUActivation()
+          (LayerNorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+        )
+        (decoder): Linear(in_features=768, out_features=30522, bias=True)
+      )
+    )
+  )
+)
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="p">(</span><span class="s2">&quot;What&#39;s the weather in ny now?&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">TypeError</span>                                 Traceback (most recent call last)
+Cell <span class="ansi-green-fg">In[6], line 1</span>
+<span class="ansi-green-fg">----&gt; 1</span> <span class="ansi-yellow-bg">model</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">&#34;</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">What</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">&#39;</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">s the weather in ny now?</span><span class="ansi-yellow-bg" style="color: rgb(175,0,0)">&#34;</span><span class="ansi-yellow-bg">)</span>
+
+File <span class="ansi-green-fg">~/PycharmProjects/opensearch-py-ml/venv/lib/python3.9/site-packages/torch/nn/modules/module.py:1501</span>, in <span class="ansi-cyan-fg">Module._call_impl</span><span class="ansi-blue-fg">(self, *args, **kwargs)</span>
+<span class="ansi-green-intense-fg ansi-bold">   1496</span> <span style="color: rgb(95,135,135)"># If we don&#39;t have any hooks, we want to skip the rest of the logic in</span>
+<span class="ansi-green-intense-fg ansi-bold">   1497</span> <span style="color: rgb(95,135,135)"># this function, and just call forward.</span>
+<span class="ansi-green-intense-fg ansi-bold">   1498</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> <span class="ansi-bold" style="color: rgb(175,0,255)">not</span> (<span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_backward_hooks <span class="ansi-bold" style="color: rgb(175,0,255)">or</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_backward_pre_hooks <span class="ansi-bold" style="color: rgb(175,0,255)">or</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_forward_hooks <span class="ansi-bold" style="color: rgb(175,0,255)">or</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_forward_pre_hooks
+<span class="ansi-green-intense-fg ansi-bold">   1499</span>         <span class="ansi-bold" style="color: rgb(175,0,255)">or</span> _global_backward_pre_hooks <span class="ansi-bold" style="color: rgb(175,0,255)">or</span> _global_backward_hooks
+<span class="ansi-green-intense-fg ansi-bold">   1500</span>         <span class="ansi-bold" style="color: rgb(175,0,255)">or</span> _global_forward_hooks <span class="ansi-bold" style="color: rgb(175,0,255)">or</span> _global_forward_pre_hooks):
+<span class="ansi-green-fg">-&gt; 1501</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span class="ansi-yellow-bg">forward_call</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg">args</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">*</span><span class="ansi-yellow-bg">kwargs</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">   1502</span> <span style="color: rgb(95,135,135)"># Do not call functions when jit is used</span>
+<span class="ansi-green-intense-fg ansi-bold">   1503</span> full_backward_hooks, non_full_backward_hooks <span style="color: rgb(98,98,98)">=</span> [], []
+
+File <span class="ansi-green-fg">~/PycharmProjects/opensearch-py-ml/opensearch_py_ml/ml_models/neuralsparsemodel.py:421</span>, in <span class="ansi-cyan-fg">NeuralSparseModel.forward</span><span class="ansi-blue-fg">(self, input)</span>
+<span class="ansi-green-intense-fg ansi-bold">    420</span> <span class="ansi-bold" style="color: rgb(0,135,0)">def</span> <span style="color: rgb(0,0,255)">forward</span>(<span style="color: rgb(0,135,0)">self</span>, <span style="color: rgb(0,135,0)">input</span>: <span style="color: rgb(0,135,0)">dict</span>[<span style="color: rgb(0,135,0)">str</span>, torch<span style="color: rgb(98,98,98)">.</span>Tensor]):
+<span class="ansi-green-fg">--&gt; 421</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>bert(<span style="color: rgb(98,98,98)">*</span><span style="color: rgb(98,98,98)">*</span><span style="color: rgb(0,135,0)">input</span>)[<span style="color: rgb(98,98,98)">0</span>]
+
+<span class="ansi-red-fg">TypeError</span>: BertForMaskedLM(
+  (bert): BertModel(
+    (embeddings): BertEmbeddings(
+      (word_embeddings): Embedding(30522, 768, padding_idx=0)
+      (position_embeddings): Embedding(512, 768)
+      (token_type_embeddings): Embedding(2, 768)
+      (LayerNorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+      (dropout): Dropout(p=0.1, inplace=False)
+    )
+    (encoder): BertEncoder(
+      (layer): ModuleList(
+        (0-11): 12 x BertLayer(
+          (attention): BertAttention(
+            (self): BertSelfAttention(
+              (query): Linear(in_features=768, out_features=768, bias=True)
+              (key): Linear(in_features=768, out_features=768, bias=True)
+              (value): Linear(in_features=768, out_features=768, bias=True)
+              (dropout): Dropout(p=0.1, inplace=False)
+            )
+            (output): BertSelfOutput(
+              (dense): Linear(in_features=768, out_features=768, bias=True)
+              (LayerNorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+              (dropout): Dropout(p=0.1, inplace=False)
+            )
+          )
+          (intermediate): BertIntermediate(
+            (dense): Linear(in_features=768, out_features=3072, bias=True)
+            (intermediate_act_fn): GELUActivation()
+          )
+          (output): BertOutput(
+            (dense): Linear(in_features=3072, out_features=768, bias=True)
+            (LayerNorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+            (dropout): Dropout(p=0.1, inplace=False)
+          )
+        )
+      )
+    )
+  )
+  (cls): BertOnlyMLMHead(
+    (predictions): BertLMPredictionHead(
+      (transform): BertPredictionHeadTransform(
+        (dense): Linear(in_features=768, out_features=768, bias=True)
+        (transform_act_fn): GELUActivation()
+        (LayerNorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+      )
+      (decoder): Linear(in_features=768, out_features=30522, bias=True)
+    )
+  )
+) argument after ** must be a mapping, not str
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">queries</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;okay&quot;</span><span class="p">,</span><span class="s2">&quot;nice to meet you&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">process_queries</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">KeyboardInterrupt</span>                         Traceback (most recent call last)
+File <span class="ansi-green-fg">~/PycharmProjects/opensearch-py-ml/venv/lib/python3.9/site-packages/IPython/core/async_helpers.py:129</span>, in <span class="ansi-cyan-fg">_pseudo_sync_runner</span><span class="ansi-blue-fg">(coro)</span>
+<span class="ansi-green-intense-fg ansi-bold">    121</span> <span style="color: rgb(175,0,0)">&#34;&#34;&#34;</span>
+<span class="ansi-green-intense-fg ansi-bold">    122</span> <span style="color: rgb(175,0,0)">A runner that does not really allow async execution, and just advance the coroutine.</span>
+<span class="ansi-green-intense-fg ansi-bold">    123</span>
+<span class="ansi-green-fg">   (...)</span>
+<span class="ansi-green-intense-fg ansi-bold">    126</span> <span style="color: rgb(175,0,0)">Credit to Nathaniel Smith</span>
+<span class="ansi-green-intense-fg ansi-bold">    127</span> <span style="color: rgb(175,0,0)">&#34;&#34;&#34;</span>
+<span class="ansi-green-intense-fg ansi-bold">    128</span> <span class="ansi-bold" style="color: rgb(0,135,0)">try</span>:
+<span class="ansi-green-fg">--&gt; 129</span>     <span class="ansi-yellow-bg">coro</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">send</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg ansi-bold" style="color: rgb(0,135,0)">None</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    130</span> <span class="ansi-bold" style="color: rgb(0,135,0)">except</span> <span class="ansi-bold" style="color: rgb(215,95,95)">StopIteration</span> <span class="ansi-bold" style="color: rgb(0,135,0)">as</span> exc:
+<span class="ansi-green-intense-fg ansi-bold">    131</span>     <span class="ansi-bold" style="color: rgb(0,135,0)">return</span> exc<span style="color: rgb(98,98,98)">.</span>value
+
+File <span class="ansi-green-fg">~/PycharmProjects/opensearch-py-ml/venv/lib/python3.9/site-packages/IPython/core/interactiveshell.py:3311</span>, in <span class="ansi-cyan-fg">InteractiveShell.run_cell_async</span><span class="ansi-blue-fg">(self, raw_cell, store_history, silent, shell_futures, transformed_cell, preprocessing_exc_tuple, cell_id)</span>
+<span class="ansi-green-intense-fg ansi-bold">   3305</span> interactivity <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">none</span><span style="color: rgb(175,0,0)">&#34;</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> silent <span class="ansi-bold" style="color: rgb(0,135,0)">else</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>ast_node_interactivity
+<span class="ansi-green-intense-fg ansi-bold">   3308</span> has_raised <span style="color: rgb(98,98,98)">=</span> <span class="ansi-bold" style="color: rgb(0,135,0)">await</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>run_ast_nodes(code_ast<span style="color: rgb(98,98,98)">.</span>body, cell_name,
+<span class="ansi-green-intense-fg ansi-bold">   3309</span>        interactivity<span style="color: rgb(98,98,98)">=</span>interactivity, compiler<span style="color: rgb(98,98,98)">=</span>compiler, result<span style="color: rgb(98,98,98)">=</span>result)
+<span class="ansi-green-fg">-&gt; 3311</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>last_execution_succeeded <span style="color: rgb(98,98,98)">=</span> <span class="ansi-bold" style="color: rgb(175,0,255)">not</span> <span class="ansi-yellow-bg">has_raised</span>
+<span class="ansi-green-intense-fg ansi-bold">   3312</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>last_execution_result <span style="color: rgb(98,98,98)">=</span> result
+<span class="ansi-green-intense-fg ansi-bold">   3314</span> <span style="color: rgb(95,135,135)"># Reset this so later displayed values do not modify the</span>
+<span class="ansi-green-intense-fg ansi-bold">   3315</span> <span style="color: rgb(95,135,135)"># ExecutionResult</span>
+
+File <span class="ansi-green-fg">~/PycharmProjects/opensearch-py-ml/venv/lib/python3.9/site-packages/IPython/core/interactiveshell.py:3311</span>, in <span class="ansi-cyan-fg">InteractiveShell.run_cell_async</span><span class="ansi-blue-fg">(self, raw_cell, store_history, silent, shell_futures, transformed_cell, preprocessing_exc_tuple, cell_id)</span>
+<span class="ansi-green-intense-fg ansi-bold">   3305</span> interactivity <span style="color: rgb(98,98,98)">=</span> <span style="color: rgb(175,0,0)">&#34;</span><span style="color: rgb(175,0,0)">none</span><span style="color: rgb(175,0,0)">&#34;</span> <span class="ansi-bold" style="color: rgb(0,135,0)">if</span> silent <span class="ansi-bold" style="color: rgb(0,135,0)">else</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>ast_node_interactivity
+<span class="ansi-green-intense-fg ansi-bold">   3308</span> has_raised <span style="color: rgb(98,98,98)">=</span> <span class="ansi-bold" style="color: rgb(0,135,0)">await</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>run_ast_nodes(code_ast<span style="color: rgb(98,98,98)">.</span>body, cell_name,
+<span class="ansi-green-intense-fg ansi-bold">   3309</span>        interactivity<span style="color: rgb(98,98,98)">=</span>interactivity, compiler<span style="color: rgb(98,98,98)">=</span>compiler, result<span style="color: rgb(98,98,98)">=</span>result)
+<span class="ansi-green-fg">-&gt; 3311</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>last_execution_succeeded <span style="color: rgb(98,98,98)">=</span> <span class="ansi-bold" style="color: rgb(175,0,255)">not</span> <span class="ansi-yellow-bg">has_raised</span>
+<span class="ansi-green-intense-fg ansi-bold">   3312</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>last_execution_result <span style="color: rgb(98,98,98)">=</span> result
+<span class="ansi-green-intense-fg ansi-bold">   3314</span> <span style="color: rgb(95,135,135)"># Reset this so later displayed values do not modify the</span>
+<span class="ansi-green-intense-fg ansi-bold">   3315</span> <span style="color: rgb(95,135,135)"># ExecutionResult</span>
+
+File <span class="ansi-green-fg">_pydevd_bundle/pydevd_cython_darwin_39_64.pyx:1187</span>, in <span class="ansi-cyan-fg">_pydevd_bundle.pydevd_cython_darwin_39_64.SafeCallWrapper.__call__</span><span class="ansi-blue-fg">()</span>
+
+File <span class="ansi-green-fg">_pydevd_bundle/pydevd_cython_darwin_39_64.pyx:627</span>, in <span class="ansi-cyan-fg">_pydevd_bundle.pydevd_cython_darwin_39_64.PyDBFrame.trace_dispatch</span><span class="ansi-blue-fg">()</span>
+
+File <span class="ansi-green-fg">_pydevd_bundle/pydevd_cython_darwin_39_64.pyx:1103</span>, in <span class="ansi-cyan-fg">_pydevd_bundle.pydevd_cython_darwin_39_64.PyDBFrame.trace_dispatch</span><span class="ansi-blue-fg">()</span>
+
+File <span class="ansi-green-fg">_pydevd_bundle/pydevd_cython_darwin_39_64.pyx:1065</span>, in <span class="ansi-cyan-fg">_pydevd_bundle.pydevd_cython_darwin_39_64.PyDBFrame.trace_dispatch</span><span class="ansi-blue-fg">()</span>
+
+File <span class="ansi-green-fg">_pydevd_bundle/pydevd_cython_darwin_39_64.pyx:585</span>, in <span class="ansi-cyan-fg">_pydevd_bundle.pydevd_cython_darwin_39_64.PyDBFrame.do_wait_suspend</span><span class="ansi-blue-fg">()</span>
+
+File <span class="ansi-green-fg">/Applications/PyCharm.app/Contents/plugins/python/helpers/pydev/pydevd.py:1196</span>, in <span class="ansi-cyan-fg">PyDB.do_wait_suspend</span><span class="ansi-blue-fg">(self, thread, frame, event, arg, send_suspend_message, is_unhandled_exception)</span>
+<span class="ansi-green-intense-fg ansi-bold">   1193</span>         from_this_thread<span style="color: rgb(98,98,98)">.</span>append(frame_id)
+<span class="ansi-green-intense-fg ansi-bold">   1195</span> <span class="ansi-bold" style="color: rgb(0,135,0)">with</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_threads_suspended_single_notification<span style="color: rgb(98,98,98)">.</span>notify_thread_suspended(thread_id, stop_reason):
+<span class="ansi-green-fg">-&gt; 1196</span>     <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">_do_wait_suspend</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">thread</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">frame</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">event</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">arg</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">suspend_type</span><span class="ansi-yellow-bg">,</span><span class="ansi-yellow-bg"> </span><span class="ansi-yellow-bg">from_this_thread</span><span class="ansi-yellow-bg">)</span>
+
+File <span class="ansi-green-fg">/Applications/PyCharm.app/Contents/plugins/python/helpers/pydev/pydevd.py:1211</span>, in <span class="ansi-cyan-fg">PyDB._do_wait_suspend</span><span class="ansi-blue-fg">(self, thread, frame, event, arg, suspend_type, from_this_thread)</span>
+<span class="ansi-green-intense-fg ansi-bold">   1208</span>             <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>_call_mpl_hook()
+<span class="ansi-green-intense-fg ansi-bold">   1210</span>         <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>process_internal_commands()
+<span class="ansi-green-fg">-&gt; 1211</span>         <span class="ansi-yellow-bg">time</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">.</span><span class="ansi-yellow-bg">sleep</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg" style="color: rgb(98,98,98)">0.01</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">   1213</span> <span style="color: rgb(0,135,0)">self</span><span style="color: rgb(98,98,98)">.</span>cancel_async_evaluation(get_current_thread_id(thread), <span style="color: rgb(0,135,0)">str</span>(<span style="color: rgb(0,135,0)">id</span>(frame)))
+<span class="ansi-green-intense-fg ansi-bold">   1215</span> <span style="color: rgb(95,135,135)"># process any stepping instructions</span>
+
+<span class="ansi-red-fg">KeyboardInterrupt</span>:
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span><span class="n">results</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;e&#39;: 0.19622904062271118,
+ &#39;o&#39;: 0.003043188713490963,
+ &#39;you&#39;: 1.234045386314392,
+ &#39;album&#39;: 0.02091391012072563,
+ &#39;good&#39;: 0.2156939059495926,
+ &#39;should&#39;: 0.08640070259571075,
+ &#39;say&#39;: 0.4730761647224426,
+ &#39;god&#39;: 0.10582844913005829,
+ &#39;stop&#39;: 0.2922588288784027,
+ &#39;yes&#39;: 0.6417264342308044,
+ &#39;friend&#39;: 0.9679573774337769,
+ &#39;word&#39;: 0.11487306654453278,
+ &#39;fine&#39;: 1.707934856414795,
+ &#39;christian&#39;: 0.12458129227161407,
+ &#39;okay&#39;: 2.6643199920654297,
+ &#39;meeting&#39;: 1.5972845554351807,
+ &#39;guy&#39;: 0.26919427514076233,
+ &#39;yeah&#39;: 0.16498872637748718,
+ &#39;happy&#39;: 1.2545279264450073,
+ &#39;peace&#39;: 0.09120619297027588,
+ &#39;choice&#39;: 0.1366693079471588,
+ &#39;kiss&#39;: 0.6890770196914673,
+ &#39;rule&#39;: 0.1543724536895752,
+ &#39;safe&#39;: 0.25875604152679443,
+ &#39;normal&#39;: 0.6555663347244263,
+ &#39;chris&#39;: 0.05300136283040047,
+ &#39;safety&#39;: 0.2379271686077118,
+ &#39;perfect&#39;: 0.18267160654067993,
+ &#39;agreement&#39;: 0.10524844378232956,
+ &#39;freedom&#39;: 0.260315865278244,
+ &#39;alex&#39;: 0.265765517950058,
+ &#39;fair&#39;: 0.060839008539915085,
+ &#39;adam&#39;: 0.1984279900789261,
+ &#39;brian&#39;: 0.44602903723716736,
+ &#39;clean&#39;: 0.01555594801902771,
+ &#39;albert&#39;: 0.013073091395199299,
+ &#39;un&#39;: 0.09775803983211517,
+ &#39;charlie&#39;: 0.28480836749076843,
+ &#39;alan&#39;: 0.478920042514801,
+ &#39;roger&#39;: 0.13119512796401978,
+ &#39;victor&#39;: 0.3276040256023407,
+ &#39;accept&#39;: 0.14173583686351776,
+ &#39;johnny&#39;: 0.1902235746383667,
+ &#39;rachel&#39;: 0.03435313329100609,
+ &#39;gary&#39;: 0.14804624021053314,
+ &#39;option&#39;: 0.3844965994358063,
+ &#39;smart&#39;: 0.1782100647687912,
+ &#39;jerry&#39;: 0.10747330635786057,
+ &#39;jon&#39;: 0.008137760683894157,
+ &#39;lucas&#39;: 0.0022031813859939575,
+ &#39;appropriate&#39;: 0.25289392471313477,
+ &#39;comfortable&#39;: 0.29233518242836,
+ &#39;permission&#39;: 0.317653089761734,
+ &#39;perry&#39;: 0.049599166959524155,
+ &#39;innocent&#39;: 0.02454475872218609,
+ &#39;spencer&#39;: 0.31903910636901855,
+ &#39;murphy&#39;: 0.08665193617343903,
+ &#39;nathan&#39;: 0.15178535878658295,
+ &#39;comfort&#39;: 0.6116225719451904,
+ &#39;noah&#39;: 0.007594404276460409,
+ &#39;owen&#39;: 0.2744259536266327,
+ &#39;reed&#39;: 0.024075767025351524,
+ &#39;honest&#39;: 0.07818123698234558,
+ &#39;riley&#39;: 0.18939177691936493,
+ &#39;error&#39;: 0.33391574025154114,
+ &#39;phrase&#39;: 0.11514710634946823,
+ &#39;survival&#39;: 0.004756089765578508,
+ &#39;attitude&#39;: 0.1746397316455841,
+ &#39;ok&#39;: 2.305015802383423,
+ &#39;healthy&#39;: 0.10509241372346878,
+ &#39;grammar&#39;: 0.5531895756721497,
+ &#39;ya&#39;: 0.32826951146125793,
+ &#39;amanda&#39;: 0.23619967699050903,
+ &#39;hannah&#39;: 0.14362625777721405,
+ &#39;blank&#39;: 0.362138956785202,
+ &#39;mia&#39;: 0.17531181871891022,
+ &#39;bradley&#39;: 0.19756640493869781,
+ &#39;ashley&#39;: 0.08734780550003052,
+ &#39;teen&#39;: 0.3554052710533142,
+ &#39;awkward&#39;: 0.48704373836517334,
+ &#39;milton&#39;: 0.05466946214437485,
+ &#39;ally&#39;: 0.16533850133419037,
+ &#39;wow&#39;: 0.15328286588191986,
+ &#39;eden&#39;: 0.0136735700070858,
+ &#39;alright&#39;: 1.0815335512161255,
+ &#39;fletcher&#39;: 0.13421431183815002,
+ &#39;allison&#39;: 0.020790621638298035,
+ &#39;zoe&#39;: 0.3301231265068054,
+ &#39;bates&#39;: 0.12847359478473663,
+ &#39;trash&#39;: 0.020412493497133255,
+ &#39;acceptable&#39;: 0.1476793736219406,
+ &#39;dude&#39;: 0.0021075436379760504,
+ &#39;avery&#39;: 0.1568165272474289,
+ &#39;apology&#39;: 0.05336488038301468,
+ &#39;shawn&#39;: 0.14634625613689423,
+ &#39;norm&#39;: 0.30595776438713074,
+ &#39;lydia&#39;: 0.32216545939445496,
+ &#39;quote&#39;: 0.3051946759223938,
+ &#39;accord&#39;: 0.0359332412481308,
+ &#39;elf&#39;: 0.0038776223082095385,
+ &#39;cancel&#39;: 0.563430666923523,
+ &#39;len&#39;: 0.23607033491134644,
+ &#39;slack&#39;: 0.31183314323425293,
+ &#39;curt&#39;: 0.5225363969802856,
+ &#39;to&#39;: 0.7213647961616516,
+ &#39;like&#39;: 0.47653719782829285,
+ &#39;people&#39;: 0.00044586253352463245,
+ &#39;know&#39;: 0.3857059180736542,
+ &#39;your&#39;: 0.25654762983322144,
+ &#39;see&#39;: 0.9119873046875,
+ &#39;love&#39;: 0.2940075397491455,
+ &#39;become&#39;: 0.013644877821207047,
+ &#39;someone&#39;: 0.006855893414467573,
+ &#39;##ie&#39;: 0.10894037038087845,
+ &#39;person&#39;: 0.09918392449617386,
+ &#39;friends&#39;: 0.08696725964546204,
+ &#39;talk&#39;: 0.0775127112865448,
+ &#39;smile&#39;: 0.31892257928848267,
+ &#39;meet&#39;: 2.157607078552246,
+ &#39;relationship&#39;: 0.06709881126880646,
+ &#39;appearance&#39;: 0.007197285536676645,
+ &#39;beautiful&#39;: 0.05418514460325241,
+ &#39;mike&#39;: 0.09942560642957687,
+ &#39;offer&#39;: 0.20099931955337524,
+ &#39;nice&#39;: 2.7312569618225098,
+ &#39;visit&#39;: 0.6402559876441956,
+ &#39;contact&#39;: 0.33360907435417175,
+ &#39;sweet&#39;: 0.39552226662635803,
+ &#39;interview&#39;: 0.6465007066726685,
+ &#39;dress&#39;: 0.031328219920396805,
+ &#39;message&#39;: 0.1081746369600296,
+ &#39;surprise&#39;: 0.3180248439311981,
+ &#39;opportunity&#39;: 0.5968999862670898,
+ &#39;promotion&#39;: 0.04445263370871544,
+ &#39;laugh&#39;: 0.030438799411058426,
+ &#39;anthony&#39;: 0.11919199675321579,
+ &#39;kelly&#39;: 0.02379189245402813,
+ &#39;pleasure&#39;: 0.26802611351013184,
+ &#39;mention&#39;: 0.0663776621222496,
+ &#39;friendly&#39;: 0.2730328440666199,
+ &#39;favorite&#39;: 0.12911812961101532,
+ &#39;gift&#39;: 0.09082166850566864,
+ &#39;gay&#39;: 0.15363839268684387,
+ &#39;birthday&#39;: 0.2506300210952759,
+ &#39;interesting&#39;: 0.27651095390319824,
+ &#39;welcome&#39;: 0.8030274510383606,
+ &#39;personality&#39;: 0.47669994831085205,
+ &#39;holiday&#39;: 0.17677223682403564,
+ &#39;lucy&#39;: 0.3710801303386688,
+ &#39;alien&#39;: 0.14296972751617432,
+ &#39;hello&#39;: 0.7645847797393799,
+ &#39;cafe&#39;: 0.05580313131213188,
+ &#39;stranger&#39;: 0.10823850333690643,
+ &#39;pleasant&#39;: 0.5792499780654907,
+ &#39;glory&#39;: 0.04253664240241051,
+ &#39;jared&#39;: 0.23288768529891968,
+ &#39;lovely&#39;: 0.07754459232091904,
+ &#39;happiness&#39;: 0.3971024453639984,
+ &#39;hug&#39;: 0.5205944180488586,
+ &#39;buddy&#39;: 0.1837269812822342,
+ &#39;introduce&#39;: 0.19678643345832825,
+ &#39;booth&#39;: 0.695695698261261,
+ &#39;cute&#39;: 0.3164345920085907,
+ &#39;ramon&#39;: 0.12484058737754822,
+ &#39;serena&#39;: 0.23900525271892548,
+ &#39;greeting&#39;: 0.5304954051971436,
+ &#39;impress&#39;: 0.0021431115455925465,
+ &#39;milo&#39;: 0.07769571244716644}
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Opensearch.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
