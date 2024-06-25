@@ -6,6 +6,7 @@
 # GitHub history for details.
 
 from .metrics_correlation.mcorr import MCorr
+from .neuralsparsemodel import NeuralSparseV2Model
 from .sentencetransformermodel import SentenceTransformerModel
 
-__all__ = ["SentenceTransformerModel", "MCorr"]
+__all__ = ["SentenceTransformerModel", "MCorr", "NeuralSparseV2Model"]

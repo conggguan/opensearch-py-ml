@@ -11,20 +11,18 @@ import re
 from pathlib import Path
 from zipfile import ZipFile
 
-from transformers import  AutoConfig
-import requests
 import torch
 from mdutils.fileutils import MarkDownFile
+from transformers import AutoformerConfig, AutoModelForMaskedLM, AutoTokenizer
 from transformers.convert_graph_to_onnx import convert
-from transformers import AutoModelForMaskedLM, AutoTokenizer
-from opensearch_py_ml.ml_commons.ml_common_utils import (
-    _generate_model_content_hash_value,
-)
 
-LICENSE_URL = "https://github.com/opensearch-project/opensearch-py-ml/raw/main/LICENSE"
+# from opensearch_py_ml.ml_commons.ml_common_utils import (
+#    _generate_model_content_hash_value,
+# )
+from opensearch_py_ml.ml_models.sparse_model import SparseModel
 
 
-class NeuralSparseV2Model:
+class NeuralSparseV2Model(SparseModel):
     """
     Class for  exporting and configuring the NeuralSparseV2Model model.
     """
@@ -56,6 +54,8 @@ class NeuralSparseV2Model:
         :return: no return value expected
         :rtype: None
         """
+        super().__init__(model_id, folder_path, overwrite)
+        self.tokenizer = None
         default_folder_path = os.path.join(
             os.getcwd(), "opensearch_neural_sparse_model_files"
         )
@@ -63,7 +63,6 @@ class NeuralSparseV2Model:
             self.folder_path = default_folder_path
         else:
             self.folder_path = folder_path
-
         # Check if self.folder_path exists
         if os.path.exists(self.folder_path) and not overwrite:
             print(
@@ -76,130 +75,6 @@ class NeuralSparseV2Model:
         self.model_id = model_id
         self.torch_script_zip_file_path = None
         self.onnx_zip_file_path = None
-
-
-    def _add_apache_license_to_model_zip_file(self, model_zip_file_path: str):
-        """
-        Add Apache-2.0 license file to the model zip file at model_zip_file_path
-
-        :param model_zip_file_path:
-            Path to the model zip file
-        :type model_zip_file_path: string
-        :return: no return value expected
-        :rtype: None
-        """
-        r = requests.get(LICENSE_URL)
-        assert r.status_code == 200, "Failed to add license file to the model zip file"
-
-        with ZipFile(str(model_zip_file_path), "a") as zipObj:
-            zipObj.writestr("LICENSE", r.content)
-
-    def zip_model(
-        self,
-        model_path: str = None,
-        model_name: str = None,
-        zip_file_name: str = None,
-        add_apache_license: bool = False,
-        verbose: bool = False,
-    ) -> None:
-        """
-        Zip the model file and its tokenizer.json file to prepare to upload to the OpenSearch cluster
-
-        :param model_path:
-            Optional, path to find the model file, if None, default as concatenate model_id and
-            '.pt' file in current path
-        :type model_path: string
-        :param model_name:
-            the name of the trained custom model. If None, default as concatenate model_id and '.pt'
-        :type model_name: string
-        :param zip_file_name: str =None
-            Optional, file name for zip file. if None, default as concatenate model_id and '.zip'
-        :type zip_file_name: string
-        :param add_apache_license:
-            Optional, whether to add a Apache-2.0 license file to model zip file
-        :type add_apache_license: string
-        :param verbose:
-            optional, use to print more logs. Default as false
-        :type verbose: bool
-        :return: no return value expected
-        :rtype: None
-        """
-        if model_name is None:
-            model_name = str(self.model_id.split("/")[-1] + ".pt")
-
-        if model_path is None:
-            model_path = os.path.join(self.folder_path, str(model_name))
-        else:
-            model_path = os.path.join(model_path, str(model_name))
-
-        if verbose:
-            print("model path is: ", model_path)
-
-        if zip_file_name is None:
-            zip_file_name = str(self.model_id.split("/")[-1] + ".zip")
-
-        zip_file_path = os.path.join(self.folder_path, zip_file_name)
-        zip_file_name_without_extension = zip_file_name.split(".")[0]
-
-        if verbose:
-            print("Zip file name without extension: ", zip_file_name_without_extension)
-
-        tokenizer_json_path = os.path.join(self.folder_path, "tokenizer.json")
-        print("tokenizer_json_path: ", tokenizer_json_path)
-
-        if not os.path.exists(tokenizer_json_path):
-            raise Exception(
-                "Cannot find tokenizer.json file, please check at "
-                + tokenizer_json_path
-            )
-        if not os.path.exists(model_path):
-            raise Exception(
-                "Cannot find model in the model path , please check at " + model_path
-            )
-
-        # Create a ZipFile Object
-        with ZipFile(str(zip_file_path), "w") as zipObj:
-            zipObj.write(model_path, arcname=str(model_name))
-            zipObj.write(
-                tokenizer_json_path,
-                arcname="tokenizer.json",
-            )
-        if add_apache_license:
-            self._add_apache_license_to_model_zip_file(zip_file_path)
-
-        print("zip file is saved to " + zip_file_path + "\n")
-
-    def _fill_null_truncation_field(
-        self,
-        save_json_folder_path: str,
-        max_length: int,
-    ) -> None:
-        """
-        Fill truncation field in tokenizer.json when it is null
-
-        :param save_json_folder_path:
-             path to save model json file, e.g, "home/save_pre_trained_model_json/")
-        :type save_json_folder_path: string
-        :param max_length:
-             maximum sequence length for model
-        :type max_length: int
-        :return: no return value expected
-        :rtype: None
-        """
-        tokenizer_file_path = os.path.join(save_json_folder_path, "tokenizer.json")
-        with open(tokenizer_file_path) as user_file:
-            parsed_json = json.load(user_file)
-        if "truncation" not in parsed_json or parsed_json["truncation"] is None:
-            parsed_json["truncation"] = {
-                "direction": "Right",
-                "max_length": max_length,
-                "strategy": "LongestFirst",
-                "stride": 0,
-            }
-            with open(tokenizer_file_path, "w") as file:
-                json.dump(parsed_json, file, indent=2)
-
-
 
     def save_as_pt(
         self,
@@ -246,7 +121,7 @@ class NeuralSparseV2Model:
         """
         bert = AutoModelForMaskedLM.from_pretrained(model_id)
         model = NeuralSparseModel(bert)
-        tokenizer = AutoTokenizer.from_pretrained(model_id)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_id)
         # model = SentenceTransformer(model_id)
 
         if model_name is None:
@@ -266,7 +141,7 @@ class NeuralSparseV2Model:
 
         # handle when model_max_length is unproperly defined in model's tokenizer (e.g. "intfloat/e5-small-v2")
         # (See PR #219 and https://github.com/huggingface/transformers/issues/14561 for more context)
-        #if model.tokenizer.model_max_length > model.get_max_seq_length():
+        # if model.tokenizer.model_max_length > model.get_max_seq_length():
         #    model.tokenizer.model_max_length = model.get_max_seq_length()
         #    print(
         #        f"The model_max_length is not properly defined in tokenizer_config.json. Setting it to be {model.tokenizer.model_max_length}"
@@ -274,30 +149,31 @@ class NeuralSparseV2Model:
 
         # save tokenizer.json in save_json_folder_name
         bert.save_pretrained(save_json_folder_path)
-        tokenizer.save_pretrained(save_json_folder_path)
-        self._fill_null_truncation_field(
-            save_json_folder_path, tokenizer.model_max_length
+        self.tokenizer.save_pretrained(save_json_folder_path)
+        super()._fill_null_truncation_field(
+            save_json_folder_path, self.tokenizer.model_max_length
         )
 
         # convert to pt format will need to be in cpu,
         # set the device to cpu, convert its input_ids and attention_mask in cpu and save as .pt format
         device = torch.device("cpu")
         cpu_model = model.to(device)
-        features = tokenizer(sentences,
-                          add_special_tokens=True,
-                          padding=True,
-                          truncation=True,
-                          max_length=512,
-                          return_attention_mask=True,
-                          return_token_type_ids=False,
-                          return_tensors="pt"
-                          ).to(device)
+        features = self.tokenizer(
+            sentences,
+            add_special_tokens=True,
+            padding=True,
+            truncation=True,
+            max_length=512,
+            return_attention_mask=True,
+            return_token_type_ids=False,
+            return_tensors="pt",
+        ).to(device)
 
-        compiled_model = torch.jit.trace(cpu_model,dict(features),strict=False)
+        compiled_model = torch.jit.trace(cpu_model, dict(features), strict=False)
         torch.jit.save(compiled_model, model_path)
         print("model file is saved to ", model_path)
 
-        # zip model file along with tokenizer.json (and license file) as output
+        # zip model file along with self.tokenizer.json (and license file) as output
         with ZipFile(str(zip_file_path), "w") as zipObj:
             zipObj.write(
                 model_path,
@@ -308,7 +184,7 @@ class NeuralSparseV2Model:
                 arcname="tokenizer.json",
             )
         if add_apache_license:
-            self._add_apache_license_to_model_zip_file(zip_file_path)
+            super()._add_apache_license_to_model_zip_file(zip_file_path)
 
         self.torch_script_zip_file_path = zip_file_path
         print("zip file is saved to ", zip_file_path, "\n")
@@ -356,7 +232,7 @@ class NeuralSparseV2Model:
 
         bert = AutoModelForMaskedLM.from_pretrained(model_id)
         tokenizer = AutoTokenizer.from_pretrained(model_id)
-        model = NeuralSparseModel(bert)
+        # model = NeuralSparseModel(bert)
         if model_name is None:
             model_name = str(model_id.split("/")[-1] + ".onnx")
 
@@ -409,7 +285,7 @@ class NeuralSparseV2Model:
                 arcname="tokenizer.json",
             )
         if add_apache_license:
-            self._add_apache_license_to_model_zip_file(zip_file_path)
+            super()._add_apache_license_to_model_zip_file(zip_file_path)
 
         self.onnx_zip_file_path = zip_file_path
         print("zip file is saved to ", zip_file_path, "\n")
@@ -484,62 +360,21 @@ class NeuralSparseV2Model:
         return description
 
     def make_model_config_json(
-            self,
-            model_name: str = None,
-            version_number: str = 1,
-            model_format: str = "TORCH_SCRIPT",
-            all_config: str = None,
-            embedding_dimension: int = None,
-            verbose: bool = False,
+        self,
+        model_name: str = None,
+        version_number: str = '1.0.3',
+        model_format: str = "TORCH_SCRIPT",
+        description: str = None
     ) -> str:
         folder_path = self.folder_path
-        config_json_file_path = os.path.join(folder_path, "config.json")
         if model_name is None:
             model_name = self.model_id
-
-        model = AutoModelForMaskedLM.from_pretrained(model_name)
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
-        """
-        if embedding_dimension is None:
-            embedding_layer = model.base_model.embeddings.word_embeddings
-            embedding_dimension = embedding_layer.embedding_dim
-        """
-        # if user input model_type/embedding_dimension/pooling_mode, it will skip this step.
-        config = AutoConfig.from_pretrained(model_name)
-        """
-        framework_type = config.framework if hasattr(config, 'framework') else 'PyTorch'
-
-        if all_config is None:
-            if not os.path.exists(config_json_file_path):
-                raise Exception(
-                    str(
-                        "Cannot find config.json in"
-                        + config_json_file_path
-                        + ". Please check the config.son file in the path."
-                    )
-                )
-            try:
-                with open(config_json_file_path) as f:
-                    if verbose:
-                        print("reading config file from: " + config_json_file_path)
-                    config_content = json.load(f)
-                    if all_config is None:
-                        all_config = config_content
-            except IOError:
-                print(
-                    "Cannot open in config.json file at ",
-                    config_json_file_path,
-                    ". Please check the config.json ",
-                    "file in the path.",
-                )
-        # todo exception
-        model_type =  all_config['model_type']
-        """
+        config = AutoformerConfig.from_pretrained(self.model_id)
         model_config_content = {
             "name": model_name,
             "version": version_number,
             "model_format": model_format,
-            "functino_name": "SPARSE_ENCODING"
+            "function_name": "SPARSE_ENCODING"
         }
         model_config_file_path = os.path.join(
             folder_path, "ml-commons_model_config.json"
@@ -550,22 +385,87 @@ class NeuralSparseV2Model:
         print(
             "ml-commons_model_config.json file is saved at : ", model_config_file_path
         )
-
         return model_config_file_path
-
 
     def get_bert(self):
         return AutoModelForMaskedLM.from_pretrained(self.model_id)
 
+    def get_model(self):
+        return NeuralSparseModel(self.get_bert(), self.tokenizer)
 
+    def save(self, path):
+        bert = AutoModelForMaskedLM.from_pretrained(self.model_id)
+        tokenizer = AutoTokenizer.from_pretrained(self.model_id)
+        bert.save_pretrained(path)
+        tokenizer.save_pretrained(path)
+
+    def post_process(self):
+        pass
+
+    def pre_process(self):
+        pass
+
+    def get_tokenizer(self):
+        return self.tokenizer
+
+    def process_queries(self, queries):
+        if self.tokenizer is None:
+            self.init_tokenizer()
+        return self.get_model().process_queries(queries)
+
+    def init_tokenizer(self, model_id = None):
+        if model_id is None:
+            model_id = self.model_id
+        self.tokenizer = AutoTokenizer.from_pretrained(model_id)
 
 class NeuralSparseModel(torch.nn.Module):
-    def __init__(self, bert):
+    def __init__(self, bert, tokenizer=None):
         super().__init__()
         self.bert = bert
+        if tokenizer is not None:
+            self.tokenizer = tokenizer
+            self.special_token_ids = [
+                tokenizer.vocab[token]
+                for token in tokenizer.special_tokens_map.values()
+            ]
+            self.id_to_token = ["" for _ in range(len(tokenizer.vocab))]
+            for token, idx in tokenizer.vocab.items():
+                self.id_to_token[idx] = token
 
-    def forward(self, input: dict[str, torch.Tensor]):
-        result = self.bert(input_ids=input["input_ids"], attention_mask=input["attention_mask"])[0]
-        values, _ = torch.max(result * input["attention_mask"].unsqueeze(-1), dim=1)
+
+    def forward(self, input: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
+        result = self.bert(input_ids=input["input_ids"],attention_mask=input["attention_mask"])[0]
+        values, _ = torch.max(result*input["attention_mask"].unsqueeze(-1), dim=1)
         values = torch.log(1 + torch.relu(values))
-        return {"output": values}
+        return {"output":values}
+
+
+    def get_sparse_vector(self, feature):
+        output = self.forward(feature)
+        values = output['output']
+        values[:, self.special_token_ids] = 0
+        return values
+
+    def transform_sparse_vector_to_dict(self, sparse_vector):
+        tokens = [
+            self.id_to_token[i]
+            for i in torch.nonzero(sparse_vector, as_tuple=True)[1].tolist()
+        ]
+        return {
+            token: weight.item()
+            for token, weight in zip(
+                tokens, sparse_vector[sparse_vector.nonzero(as_tuple=True)]
+            )
+        }
+
+    def process_queries(self, queries):
+        features = self.tokenizer(
+            queries,
+            padding=True,
+            truncation=True,
+            return_tensors="pt",
+            return_token_type_ids=False,
+        )
+        sparse_vector = self.get_sparse_vector(features)
+        sparse_dict = self.transform_sparse_vector_to_dict(sparse_vector)
+        return sparse_dict
