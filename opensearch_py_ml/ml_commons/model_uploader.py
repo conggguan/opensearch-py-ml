@@ -22,9 +22,11 @@ from opensearch_py_ml.ml_commons.ml_common_utils import (
     MODEL_CONTENT_HASH_VALUE,
     MODEL_CONTENT_SIZE_IN_BYTES_FIELD,
     MODEL_FORMAT_FIELD,
+    MODEL_FUNCTION_NAME,
     MODEL_GROUP_ID,
     MODEL_MAX_SIZE,
     MODEL_NAME_FIELD,
+    MODEL_TASK_TYPE,
     MODEL_TYPE,
     MODEL_VERSION_FIELD,
     TOTAL_CHUNKS_FIELD,
@@ -167,6 +169,15 @@ class ModelUploader:
         """
 
         if model_meta:
+            sparse_flag = False
+            if model_meta.get(MODEL_FUNCTION_NAME) is not None:
+                if model_meta.get(MODEL_FUNCTION_NAME) == "SPARSE_ENCODING":
+                    sparse_flag = True
+
+            if model_meta.get(MODEL_TASK_TYPE) is not None:
+                if model_meta.get(MODEL_TASK_TYPE) == "SPARSE_ENCODING":
+                    sparse_flag = True
+
             if not model_meta.get(MODEL_NAME_FIELD):
                 raise ValueError(f"{MODEL_NAME_FIELD} can not be empty")
             if not model_meta.get(MODEL_VERSION_FIELD):
@@ -177,8 +188,10 @@ class ModelUploader:
                 raise ValueError(f"{MODEL_CONTENT_HASH_VALUE} can not be empty")
             if not model_meta.get(TOTAL_CHUNKS_FIELD):
                 raise ValueError(f"{TOTAL_CHUNKS_FIELD} can not be empty")
+
             if not model_meta.get(MODEL_CONFIG_FIELD):
-                raise ValueError(f"{MODEL_CONFIG_FIELD} can not be empty")
+                if not sparse_flag:
+                    raise ValueError(f"{MODEL_CONFIG_FIELD} can not be empty")
             else:
                 if not isinstance(model_meta.get(MODEL_CONFIG_FIELD), dict):
                     raise TypeError(

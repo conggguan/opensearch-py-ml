@@ -219,7 +219,7 @@ def diptest(seq: torch.Tensor) -> Tuple[float, float]:
     """
 
     # torchScript doesn't support tensor values as global variable so we can't
-    # put these constant values in utils.py
+    # put these constant values in autotracing_utils.py
 
     N_VALS: torch.Tensor = torch.tensor(
         [100, 200, 500, 700, 1000, 2000, 5000, 7000, 10000, 20000, 50000]
