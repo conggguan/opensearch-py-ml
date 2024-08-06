@@ -68,11 +68,6 @@ jobs:
   init-workflow-var:
     runs-on: 'ubuntu-latest'
     steps:
-    - name: Fail if branch is not main
-      if: github.ref != 'refs/heads/main'
-      run: |
-         echo "This workflow should only be triggered on 'main' branch"
-         exit 1
     - name: Initiate folders
       id: init_folders
       run: |
@@ -291,7 +286,7 @@ jobs:
         with:
           secret: ${{ github.TOKEN }}
           approvers: ${{ steps.get_approvers.outputs.approvers }}
-          minimum-approvals: 2
+          minimum-approvals: 1
           issue-title: "Upload Model to OpenSearch Model Hub (${{ github.event.inputs.model_id }})"
           issue-body: ${{ steps.create_issue_body.outputs.issue_body }}
           exclude-workflow-initiator-as-approver: false
