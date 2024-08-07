@@ -40,6 +40,7 @@ Inspired from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 - Switch AL2 to AL2023 agent and DockerHub to ECR images in ml-models.JenkinsFile ([#377](https://github.com/opensearch-project/opensearch-py-ml/pull/377))
 - Refactored validators in ML Commons' client([#385](https://github.com/opensearch-project/opensearch-py-ml/pull/385))
 - Update model upload history -  opensearch-project/opensearch-neural-sparse-encoding-v1 (v.1.0.3)(TORCH_SCRIPT) by @conggguan ([#17](https://github.com/conggguan/opensearch-py-ml/pull/17))
+- Update model upload history -  opensearch-project/opensearch-neural-sparse-encoding-v1 (v.1.0.3)(TORCH_SCRIPT) by @conggguan ([#19](https://github.com/conggguan/opensearch-py-ml/pull/19))
 
 ### Fixed
 - Enable make_model_config_json to add model description to model config file by @thanawan-atc in ([#203](https://github.com/opensearch-project/opensearch-py-ml/pull/203))
