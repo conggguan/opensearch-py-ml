@@ -35,6 +35,7 @@ KEYS = [
     "Pooling Mode",
     "Workflow Run ID",
 ]
+
 MD_HEADER = "# Pretrained Model Upload History\n\nThe model-serving framework supports a variety of open-source pretrained models that can assist with a range of machine learning (ML) search and analytics use cases. \n\n\n## Uploaded Pretrained Models\n\n\n### Sentence transformers\n\nSentence transformer models map sentences and paragraphs across a dimensional dense vector space. The number of vectors depends on the model. Use these models for use cases such as clustering and semantic search. \n\nThe following table shows sentence transformer model upload history.\n\n[//]: # (This may be the most platform independent comment)\n"
 
 
@@ -104,6 +105,27 @@ def sort_models(models: List[Dict]) -> List[Dict]:
         ),
     )
     return models
+
+def deduplicate_models(models: List[Dict]) -> List[Dict]:
+    """
+    Deduplicate models by all keys except "Upload Time"
+
+    :param models: List of model dictionary objects to be deduplicated
+    :type models: list[dict]
+    :return: Deduplicated list of model dictionary objects
+    :rtype: list[dict]
+    """
+    unique_models = {}
+    for model in models:
+        # Create a key based on all keys except "Upload Time"
+        key = tuple((k, v) for k, v in model.items() if k != "Upload Time")
+        if key not in unique_models:
+            unique_models[key] = model
+        else:
+            # Keep the latest upload based on "Upload Time"
+            if model["Upload Time"] > unique_models[key]["Upload Time"]:
+                unique_models[key] = model
+    return list(unique_models.values())
 
 
 def update_model_json_file(
