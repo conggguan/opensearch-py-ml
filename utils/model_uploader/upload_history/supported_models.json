@@ -58,5 +58,15 @@
         "Embedding Dimension": "N/A",
         "Pooling Mode": "N/A",
         "Workflow Run ID": "10271804648"
+    },
+    {
+        "Model Uploader": "@conggguan",
+        "Upload Time": "2024-08-07 07:49:34",
+        "Model ID": "opensearch-project/opensearch-neural-sparse-encoding-v1",
+        "Model Version": "1.0.3",
+        "Model Format": "TORCH_SCRIPT",
+        "Embedding Dimension": "N/A",
+        "Pooling Mode": "N/A",
+        "Workflow Run ID": "10286466623"
     }
 ]
