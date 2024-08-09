@@ -27,6 +27,7 @@ from utils.model_uploader.autotracing_utils import (
     ONNX_FORMAT,
     RTOL_TEST,
     SPARSE_ALGORITHM,
+    SPARSE_MODEL_TYPE,
     TEMP_MODEL_PATH,
     TORCH_SCRIPT_FORMAT,
     TORCHSCRIPT_FOLDER_PATH,
@@ -235,7 +236,10 @@ def main(
             torchscript_model_path,
             torchscript_model_config_path,
         ) = trace_sparse_encoding_model(
-            model_id, model_version, TORCH_SCRIPT_FORMAT, model_description=None
+            model_id,
+            model_version,
+            TORCH_SCRIPT_FORMAT,
+            model_description=model_description,
         )
 
         torchscript_encoding_datas = register_and_deploy_sparse_encoding_model(
@@ -262,6 +266,7 @@ def main(
             TORCH_SCRIPT_FORMAT,
             torchscript_model_path,
             torchscript_model_config_path,
+            SPARSE_MODEL_TYPE,
         )
 
         config_path_for_checking_description = torchscript_dst_model_config_path
@@ -273,7 +278,7 @@ def main(
             onnx_model_path,
             onnx_model_config_path,
         ) = trace_sparse_encoding_model(
-            model_id, model_version, ONNX_FORMAT, model_description=None
+            model_id, model_version, ONNX_FORMAT, model_description=model_description
         )
 
         onnx_embedding_datas = register_and_deploy_sparse_encoding_model(
