@@ -78,5 +78,15 @@
         "Embedding Dimension": "N/A",
         "Pooling Mode": "N/A",
         "Workflow Run ID": "10295327692"
+    },
+    {
+        "Model Uploader": "@conggguan",
+        "Upload Time": "2024-08-08 22:39:36",
+        "Model ID": "sentence-transformers/all-MiniLM-L6-v2",
+        "Model Version": "1.0.0",
+        "Model Format": "TORCH_SCRIPT",
+        "Embedding Dimension": "N/A",
+        "Pooling Mode": "N/A",
+        "Workflow Run ID": "10314083984"
     }
 ]
