@@ -96,6 +96,7 @@ jobs:
         pooling_mode=${{ github.event.inputs.pooling_mode }}
         model_description="${{ github.event.inputs.model_description }}"
         model_type=${{ github.event.inputs.model_type }}
+        model_prefix=${{ github.event.inputs.upload_prefix }}
         workflow_info="
         ============= Workflow Details ==============
         - Workflow Name: ${{ github.workflow }}
@@ -108,6 +109,7 @@ jobs:
         - Model Version: ${{ github.event.inputs.model_version }}
         - Model Type: ${{ github.event.inputs.model_type }}
         - Tracing Format: ${{ github.event.inputs.tracing_format }}
+        - Upload Prefix: ${model_prefix:-N/A}
         - Embedding Dimension: ${embedding_dimension:-N/A}
         - Pooling Mode: ${pooling_mode:-N/A}
         - Model Description: ${model_description:-N/A}
@@ -201,7 +203,8 @@ jobs:
           echo "MODEL_VERSION=${{ github.event.inputs.model_version }}" >> $GITHUB_ENV
           echo "TRACING_FORMAT=${{ github.event.inputs.tracing_format }}" >> $GITHUB_ENV
           echo "EMBEDDING_DIMENSION=${{ github.event.inputs.embedding_dimension }}" >> $GITHUB_ENV
-          echo "POOLING_MODE=${{ github.event.inputs.pooling_mode }}" >> $GITHUB_ENV     
+          echo "POOLING_MODE=${{ github.event.inputs.pooling_mode }}" >> $GITHUB_ENV    
+          echo "UPLOAD_PREFIX=${{ github.event.inputs.upload_prefix }}" >> $GITHUB_ENV    
           echo "MODEL_DESCRIPTION=${{ github.event.inputs.model_description }}" >> $GITHUB_ENV     
       - name: Autotracing ${{ matrix.cluster }} secured=${{ matrix.secured }} version=${{matrix.entry.opensearch_version}}
         run: "./.ci/run-tests ${{ matrix.cluster }} ${{ matrix.secured }} ${{ matrix.entry.opensearch_version }} ${{github.event.inputs.model_type}}Trace"

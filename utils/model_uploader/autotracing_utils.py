@@ -236,7 +236,7 @@ def prepare_files_for_uploading(
     model_format: str,
     src_model_path: str,
     src_model_config_path: str,
-    model_type: str = None,
+    upload_prefix: str = None,
 ) -> tuple[str, str]:
     """
     Prepare files for uploading by storing them in UPLOAD_FOLDER_PATH
@@ -257,8 +257,8 @@ def prepare_files_for_uploading(
     """
     model_type, model_name = (
         model_id.split("/")
-        if model_type is None
-        else (model_type, model_id.split("/")[-1])
+        if upload_prefix is None
+        else (upload_prefix, model_id.split("/")[-1])
     )
     model_format = model_format.lower()
     folder_to_delete = (
