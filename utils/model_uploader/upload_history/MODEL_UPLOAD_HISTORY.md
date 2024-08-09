@@ -24,3 +24,4 @@ The following table shows sentence transformer model upload history.
 |2024-08-07 18:01:26|@dhrubo-os|`opensearch-project/opensearch-neural-sparse-encoding-doc-v2-distill`|1.0.0|TORCH_SCRIPT|N/A|N/A|10293890748|
 |2024-08-07 18:23:41|@dhrubo-os|`opensearch-project/opensearch-neural-sparse-encoding-doc-v2-mini`|1.0.0|TORCH_SCRIPT|N/A|N/A|10294048787|
 |2024-08-08 09:40:44|@dhrubo-os|`opensearch-project/opensearch-neural-sparse-encoding-v2-distill`|1.0.0|TORCH_SCRIPT|N/A|N/A|10295327692|
+|2024-08-08 22:39:03|@conggguan|`sentence-transformers/all-MiniLM-L6-v2`|1.0.1|TORCH_SCRIPT|N/A|N/A|10314181156|
